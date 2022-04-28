@@ -17,6 +17,4 @@ void setup() {
   Serial.printf("New hostname: %s\n", WiFi.hostname().c_str());
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
+void loop() {}
