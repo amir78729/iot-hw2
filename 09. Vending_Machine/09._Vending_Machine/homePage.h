@@ -1,3 +1,4 @@
+const char homePage_html[] PROGMEM = R"rawliteral(
 <!doctype html>
 <html lang="en">
   <head>
@@ -75,13 +76,13 @@
             e.preventDefault();
             let selectedItem = null;
             if (document.getElementById('milk').checked) {
-                selectedItem = 'Milk';
+                selectedItem = 1;
             } else if (document.getElementById('soda').checked) {
-                selectedItem = 'Soda';
+                selectedItem = 2;
             } else if (document.getElementById('peanut').checked) {
-                selectedItem = 'Peanut Pack';
+                selectedItem = 3;
             } else if (document.getElementById('chips').checked) {
-                selectedItem = 'Chips';
+                selectedItem = 4;
             }
             if (selectedItem) {
                 window.location.replace(`/order?item=${selectedItem}`);
@@ -93,3 +94,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
   </body>
 </html>
+)rawliteral";
