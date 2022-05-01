@@ -169,18 +169,24 @@ void loop() {
 }
 
 void authenticate() {
-  if (order_status == AUTHENTICATING && millis() - authentication_started >= 60000) { // user has one minute to authenticate
+  // if no card was detected in 60 seconds...
+  if (order_status == AUTHENTICATING && millis() - authentication_started >= 60000) { 
     order_status = AUTHENTICATION_FAILED;
     Serial.println("Authenticating timeout...");
     return;
+
+  // when someone has pressed submit button after selecting a snack...
   } else if (order_status == WAITING_FOR_TAG) {
     authentication_started = millis();
-    order_status = AUTHENTICATING;
+    order_status = WAITING_FOR_TAG;
+    // order_status = AUTHENTICATING;
   }
+
   // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
   if ( ! rfid.PICC_IsNewCardPresent()) return;
   // Verify if the NUID has been readed
   if ( ! rfid.PICC_ReadCardSerial()) return;
+
   String tag = "";
   for (byte i = 0; i < rfid.uid.size; i++) {
     tag += String(rfid.uid.uidByte[i], HEX);
@@ -192,7 +198,7 @@ void authenticate() {
       if (is_tag_valid[i]) {
         order_status = CHECKING_WALLET;
         Serial.println("Authenticated");
-        delay(1000);
+        delay(500);
       } else {
         order_status = AUTHENTICATION_FAILED;
         Serial.println("Authentication Failed");
@@ -219,7 +225,7 @@ void check_wallet() {
     if ( wallet - price[ordered_item] < 0 ) {
       order_status = NOT_ENOUGH_MONEY;
     } else {
-      wallet = wallet - price[ordered_item];
+      wallet -= price[ordered_item];
       Serial.print("Remained Balance:");
       Serial.println(wallet);
       order_status = OPEN_DOOR;
