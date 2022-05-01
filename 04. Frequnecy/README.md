@@ -16,7 +16,7 @@ Amirhossein Alibakhshi (9731096) - Negin Hajisobhani (9731078)
 توضیج
 
 #### کاربرد‌ها 
-- علت اول
+- سیستم‌های راداری
 - علت دوم
 
 
@@ -25,10 +25,11 @@ Amirhossein Alibakhshi (9731096) - Negin Hajisobhani (9731078)
 توضیج
 
 #### کاربرد‌ها 
-- علت اول
+- کاربرد‌های نظامی
 - علت دوم
 
 
-
+#### 📚 منابع:
 </div>
 
+- https://jemengineering.com/blog-frequency-bands-and-applications/

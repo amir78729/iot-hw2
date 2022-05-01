@@ -13,6 +13,9 @@
             justify-content: center;
             align-items: center;
         }
+        section {
+          min-width: 250px;
+        }
     </style>
   </head>
   <body>
@@ -22,21 +25,58 @@
         <form>
             <div class="mb-3">
               <label for="time" class="form-label">Time</label>
-              <input type="time" class="form-control" id="time" aria-describedby="time">
+              <input type="time" class="form-control" id="time" aria-describedby="time" onchange="changeTime()">
             </div>
             <div class="mb-3">
-              <label for="volume" class="form-label">Volume</label>
-              <input type="range" class="form-range" min="0" max="10" step="1" id="volume">
-            </div>
-            
-            <div class="container">
-                <div class="row justify-content-between">
-                    <button type="submit" class="btn btn-danger col-6">Stop</button>
-                    <button type="submit" class="btn btn-primary col-6">Snooz</button>
-                </div>
+              <label for="volume" class="form-label">Volume: <strong id="vol-num">5</strong> </label>
+              <input type="range" class="form-range" min="0" max="10" step="1" id="volume" onchange="changeVolume()">
             </div>
           </form>
+          <div class="container">
+            <div class="row justify-content-between">
+                <button id="start-btn" onclick="toggleStart()" type="submit" class="btn btn-success col-6">Start</button>
+                <button id="snooz-btn" onclick="" type="submit" class="btn btn-primary col-6">Snooz</button>
+            </div>
+        </div>
     </section>
+    <script>
+    const startStopBtn = document.getElementById('start-btn');
+    const volNum = document.getElementById('vol-num');
+    const rangeInput = document.getElementById('volume');
+    const timeInput = document.getElementById('time');
+    const params = new URLSearchParams(window.location.search);
+    
+    let isStart = false;
+    let volume = 5;
+
+    timeInput.value = params.get('time');
+
+    volume = Number(params.get('volume'));
+    rangeInput.value = volume;
+    volNum.innerText = volume;
+
+    const updateUrl = () => {
+      if (history.pushState) {
+          const newurl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?time=${timeInput.value || '--:--'}&volume=${volume}`;
+          window.history.pushState({path:newurl},'',newurl);
+      }
+    }
+    const toggleStart = () => {
+      startStopBtn.innerText = isStart ? "Stop": "Start";
+      startStopBtn.className = isStart ? "btn btn-danger col-6": "btn btn-success col-6"
+      isStart = !isStart;
+    }
+    const changeVolume = () => {
+      volume = rangeInput.value;
+      volNum.innerText = volume;
+      updateUrl();
+    }
+    const changeTime = () => {
+      time = timeInput.value;
+      updateUrl();
+    }
+      
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
   </body>
 </html>
