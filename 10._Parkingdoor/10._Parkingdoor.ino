@@ -152,7 +152,7 @@ void loop() {
     flag = true;
     open_door();
   }
-  if (command == "o" ) {
+  if (command == "open" ) {
     if (doorState == DOOR_IS_CLOSED) {
       
       alert_text = OPENING_DOOR;
@@ -167,7 +167,7 @@ void loop() {
       return;
     }
   }
-  if (command == "c" && doorState == DOOR_IS_OPEN) {
+  if (command == "close" && doorState == DOOR_IS_OPEN) {
     close_door();
     return;
   }

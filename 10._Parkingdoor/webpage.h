@@ -63,10 +63,8 @@ const resonseInfo = {
   },
 }
 function processButton(e){
-  console.log("sending request");
   var target = e.target || window.target;
-  console.log(target);
-  console.log(target.id);
+  console.log("sending request", target);
   let buttonState = target.id;
   var xhttp = new XMLHttpRequest();
   
@@ -76,8 +74,8 @@ function processButton(e){
 
 setInterval(() => {
   var xhttp = new XMLHttpRequest();
-  xhttp.onreadystatechange = () => {
-    if (this.readyState == 4 && this.status == 200) {
+  xhttp.onreadystatechange = function() {
+    if (this.status == 200) {
       var response = xhttp.responseText;
       document.getElementById("status").innerHTML = resonseInfo[response]?.message || 'Something went wrong! Please try again';
       document.getElementById("status-container").className = `alert alert-${resonseInfo[response]?.type || 'danger'} text-center`;
@@ -85,7 +83,7 @@ setInterval(() => {
   };
   xhttp.open("GET", "alert");
   xhttp.send();
-}, 100);
+}, 200);
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
 
