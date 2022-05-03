@@ -3,11 +3,11 @@
 #include "webpage.h"
 #include <Servo.h>
 
-#define LED 2
-#define SERVO 0
-#define TRIGGER_PIN 4
-#define ECHO_PIN 5
-#define BUZZER_PIN 16
+#define LED 2 // D4
+#define SERVO 0 // D3
+#define TRIGGER_PIN 4 // D4
+#define ECHO_PIN 5 // D1
+#define BUZZER_PIN 16 // D0 
 
 #define SOUND_VELOCITY 0.034
 bool flag = true;
