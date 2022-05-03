@@ -25,7 +25,6 @@ void buzz(void);
 void snooze_alarm(void);
 void stop_alarm(void);
 
-
 void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(BUZZER_PIN, LOW);
@@ -40,29 +39,30 @@ void setup() {
   timeClient.setTimeOffset(16200); // GMT+4:30 (4.5*3600)
   timeClient.update();
   Serial.println();
-  print_current_time(); 
+  print_current_time();
   Serial.println("Connected to the Internet!");
 }
 
-
 void loop() {
   timeClient.update();
-  if (timeClient.getFormattedTime()== INPUT_TIME){
-      while(!snooze_alarm && !stop_alarm){
-        buzz();
-        }
-      if(snooze_alarm){
-        snooze_alarm();
-        buzz();
-        }
-      else if(stop_alarm){
-        stop_alarm();
-        }
+  if (!stop_alarm) {
+    if (timeClient.getEpochTime() >= INPUT_TIME)
+    {
+      buzz();
     }
+    if (snooze_alarm) {
+      snooze_alarm();
+      buzz();
+    }
+    else if (stop_alarm) {
+      stop_alarm();
+    }
+  }
 }
 
+
 void buzz() {
-  digitalWrite(BUZZER_PIN, HIGH);
+  digitalWrite(BUZZER_PIN, HIGH); //analogWrite
 }
 
 void print_current_time() {
