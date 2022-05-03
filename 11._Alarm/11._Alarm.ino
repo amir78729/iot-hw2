@@ -1,10 +1,18 @@
-#include <NTPClient.h>
-#include <WiFiUdp.h>
-#include <ESP8266WiFi.h>
+//#include <NTPClient.h>
+//#include <WiFiUdp.h>
+//#include "ESP8266WiFi.h"
+//#include "ESP8266WebServer.h"
+//#include "webpage.h"
+#include "ESP8266WiFi.h"
+#include "ESP8266WebServer.h"
+#include "webpage.h"
 
 // defining buzzer pin
-const int BUZZER_PIN = 9; // assiging buzzer pin: SD2
-const int[8] INPUT_TIME;
+//#define BUZZER_PIN 9; // assiging buzzer pin: SD2
+
+String input_time;
+String volume;
+String state;
 
 const int SNOOZE_DURATION = 5000;
 
@@ -14,70 +22,127 @@ bool snooze_alarm = false;
 bool stop_alarm = false;
 
 // informations and instances for connecting to the internet
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org");
-const char *ssid     = "<SSID>";
-const char *password = "<PASSWORD>";
 
-// function prototypes
-void print_current_time(void);
-void buzz(void);
-void snooze_alarm(void);
-void stop_alarm(void);
+//WiFiUDP ntpUDP;
+//NTPClient timeClient(ntpUDP, "pool.ntp.org");
+ESP8266WebServer server(80);
+
+const char *ssid     = "Dellink";
+const char *password = "wtkh-daah-y8bj";
+
+
+void alarm_info() {
+  server.send(200, "text/plain", "clicked");
+  input_time = server.arg("time");
+  volume = server.arg("volume");
+  state = server.arg("state");
+
+  Serial.println("----------------------------------------------------------------------------------");
+  Serial.print("input_time: ");
+  Serial.println(input_time);
+  Serial.print("volume: ");
+  Serial.println(volume);
+  Serial.print("state: ");
+  Serial.println(state);
+  Serial.println("----------------------------------------------------------------------------------");
+
+}
+void webpage() {
+  server.send(200, "text/html", webpage_html);
+}
+void handle_NotFound() {
+  server.send(404, "text/plain", "Not found");
+}
 
 void setup() {
-  pinMode(BUZZER_PIN, OUTPUT);
-  digitalWrite(BUZZER_PIN, LOW);
+//  pinMode(BUZZER_PIN, OUTPUT);
+//  digitalWrite(BUZZER_PIN, LOW);
 
   Serial.begin(9600);
-  WiFi.begin(ssid, password); // connecting to the internet for getting the time
+  WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
     Serial.print(".");
+    delay(1000);
   }
-  timeClient.begin();
-  timeClient.setTimeOffset(16200); // GMT+4:30 (4.5*3600)
-  timeClient.update();
   Serial.println();
-  print_current_time();
+
+  // getting IP
+  bool is_connected = false;
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.print("Successfully connected to ");
+    Serial.println(ssid);
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+    is_connected = true;
+  }
+  // setting up the server
+  if (is_connected) {
+    server.on("/", webpage);
+    server.on("/alarm_info", alarm_info);
+    server.onNotFound(handle_NotFound);
+    server.begin();
+    Serial.println("Server is up");
+  } else {
+    Serial.println("Unable to set up the Server");
+  }
+  Serial.println("");
+//  timeClient.begin();
+//  timeClient.setTimeOffset(16200); // GMT+4:30 (4.5*3600)
+//  timeClient.update();
+  Serial.println();
+//  print_current_time();
   Serial.println("Connected to the Internet!");
 }
+int snooz_start_time = -1;
 
 void loop() {
-  timeClient.update();
-  if (!stop_alarm) {
-    if (timeClient.getEpochTime() >= INPUT_TIME)
-    {
-      buzz();
-    }
-    if (snooze_alarm) {
-      snooze_alarm();
-      buzz();
-    }
-    else if (stop_alarm) {
-      stop_alarm();
-    }
-  }
+  server.handleClient();
+//  timeClient.update();
+//  if (BUZZER_PIN, (timeClient.getEpochTime() >= input_time && !snooze_alarm && !stop_alarm)) {
+//    buzz();
+//  }
+//  if (!stop_alarm) {
+//    if (timeClient.getEpochTime() >= input_time)
+//    {
+//      buzz();
+//    }
+//    if (snooze_alarm) {
+//      if (snooz_start_time == -1) {
+//        // initaiting snoozing
+//        snooz_start_time = millis();
+//      } else {
+//        if (millis() - snooz_start_time >= 5000) {
+//          snooz_start_time = -1;
+//          snooze_alarm = false;
+//        }
+//      }
+////      snooze_alarm();
+////      buzz();
+//    }
+//    else if (stop_alarm) {
+////      stop_alarm();
+//    }
+//  }
 }
 
 
-void buzz() {
-  digitalWrite(BUZZER_PIN, HIGH); //analogWrite
-}
+//void buzz() {
+//  digitalWrite(BUZZER_PIN, HIGH); //analogWrite
+//}
 
-void print_current_time() {
-  Serial.println("----------------------------------------------------------------------------------");
-  Serial.print("[");
-  Serial.print(timeClient.getFormattedTime());
-  Serial.print("] ");
-}
+//void print_current_time() {
+//  Serial.println("----------------------------------------------------------------------------------");
+//  Serial.print("[");
+//  Serial.print(timeClient.getFormattedTime());
+//  Serial.print("] ");
+//}
 
-void snooze_alarm() {
-  Serial.print("snoozing...(");
-  Serial.print(SNOOZE_DURATION - (millis() - timer_millies));
-  Serial.println("ms remaining)");
-}
+//void snooze_alarm() {
+//  Serial.print("snoozing...(");
+//  Serial.print(SNOOZE_DURATION - (millis() - timer_millies));
+//  Serial.println("ms remaining)");
+//}
 
-void stop_alarm() {
-  digitalWrite(BUZZER_PIN, LOW);
-}
+//void stop_alarm() {
+//  digitalWrite(BUZZER_PIN, LOW);
+//}
