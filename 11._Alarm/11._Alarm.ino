@@ -21,7 +21,7 @@ bool stop_alarm = false;
 // informations and instances for connecting to the internet
 
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org");
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 16200);
 ESP8266WebServer server(80);
 
 const char *ssid     = "Dellink";
@@ -98,8 +98,8 @@ void setup() {
   }
   Serial.println("");
   timeClient.begin();
-  timeClient.setTimeOffset(16200); // GMT+4:30 (4.5*3600)
-  timeClient.update();
+//   timeClient.setTimeOffset(16200); // GMT+4:30 (4.5*3600)
+//   timeClient.update();
   Serial.println();
   print_current_time();
   Serial.println("Connected to the Internet!");
