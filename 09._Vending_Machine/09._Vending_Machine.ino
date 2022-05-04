@@ -5,16 +5,13 @@
 #include <Servo.h>
 #include <SPI.h>
 #include <MFRC522.h>
-
+bool flag = true;
 
 // tags information
 const String tags[] = {"336ff31a", "4c661249"};
 bool is_tag_valid[] = {true, false};
-//const int SS_PIN = D8; // assiging RFID SS pin: D8
-//const int RST_PIN = D0; // assiging RFID RST pin: D0
 
 const int SERVO_PIN = 4; // assiging servo pin: D2
-const int LDR_PIN = A0; // assiging LDR pin: A0
 const int LED_PIN = 5;  // assiging LED pin: D1
 const int BUZZER_PIN = 0; // assiging buzzer pin: D3
 const int SS_PIN = 15; // assiging RFID SS pin: D8
@@ -24,12 +21,7 @@ MFRC522 rfid(SS_PIN, RST_PIN); // Instance of the class
 MFRC522::MIFARE_Key key;
 // Init array that will store new NUID
 byte nuidPICC[4];
-
 Servo myServo;
-//const int SERVO_PIN = D2;
-
-//const int BUZZER_PIN = D1;
-//const int LED = D3;
 
 ESP8266WebServer server(80);
 // wifi credentials
@@ -45,32 +37,32 @@ const String AUTHENTICATING = "AUTHENTICATING";
 const String AUTHENTICATION_FAILED = "AUTHENTICATION_FAILED";
 const String CHECKING_WALLET = "CHECKING_WALLET";
 const String NOT_ENOUGH_MONEY = "NOT_ENOUGH_MONEY";
-const String OPEN_DOOR = "OPEN_DOOR";
+const String OPEN_DOOR = "OPENNING_DOOR";
 const String TAKING = "TAKING";
 const String DONE = "DONE";
-
 String order_status = "-";
+
 // authentication data
 long authentication_started = -1;
-//TODO: put tags data here
-// order items and price data
-const int price[] = {7000, 5000, 10000, 6000};
+const int price[] = {7000, 5000, 4000, 6000};
 int ordered_item = -1;
 int wallet = 20000;
 
 void webpage() {
   server.send(200, "text/html", homePage_html);
   ordered_item = -1;
-  order_status = INVALID; //reset machine
+  order_status = INVALID;
 }
 
 void handle_order() {
   server.send(200, "text/html", itemPage_html);
-  
   String order_id = server.arg("item");
+  order_id.trim();
   Serial.print("Order for item: ");
   Serial.println(order_id);
-  ordered_item = order_id.toInt() + 1; //array index starts from zero
+  ordered_item = order_id.toInt() - 1; 
+  Serial.println(ordered_item);
+  Serial.println(price[ordered_item]);
   order_status = WAITING_FOR_TAG;
 }
 
@@ -85,7 +77,6 @@ void handle_NotFound() {
 void setup() {
   Serial.begin(9600);
   delay(500);
-  // set up servo
   myServo.attach(SERVO_PIN);
 
   // set up RFID
@@ -131,7 +122,7 @@ void setup() {
     server.on("/status", return_status);
     server.onNotFound(handle_NotFound);
     server.begin();
-    Serial.println("Server is up");
+    Serial.println("Vending machine's server is up");
   } else {
     Serial.println("Unable to set up the Server");
   }
@@ -139,11 +130,9 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(order_status);
   if (!is_connected) {
     return;
   }
-  // put your main code here, to run repeatedly:
   server.handleClient();
   if (order_status == WAITING_FOR_TAG || order_status == AUTHENTICATING) {
     authenticate();
@@ -158,7 +147,7 @@ void loop() {
     return;
   }
   if ( order_status == TAKING ) {
-    inform_user();
+    notify_user();
     return;
   }
   if (order_status == DONE) {
@@ -170,16 +159,27 @@ void loop() {
 
 void authenticate() {
   // if no card was detected in 60 seconds...
-  if (order_status == AUTHENTICATING && millis() - authentication_started >= 60000) { 
+  if (order_status == AUTHENTICATING && millis() - authentication_started >= 60000) {
     order_status = AUTHENTICATION_FAILED;
+    if (flag) {
+      flag = false;
+      delay(100);
+      return;
+    }
+    flag = true;
     Serial.println("Authenticating timeout...");
     return;
 
-  // when someone has pressed submit button after selecting a snack...
+    // when someone has pressed submit button after selecting a snack...
   } else if (order_status == WAITING_FOR_TAG) {
     authentication_started = millis();
-    order_status = WAITING_FOR_TAG;
-    // order_status = AUTHENTICATING;
+    order_status = AUTHENTICATING;
+    if (flag) {
+      flag = false;
+      delay(100);
+      return;
+    }
+    flag = true;
   }
 
   // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
@@ -187,20 +187,34 @@ void authenticate() {
   // Verify if the NUID has been readed
   if ( ! rfid.PICC_ReadCardSerial()) return;
 
+  // Authorization...
   String tag = "";
   for (byte i = 0; i < rfid.uid.size; i++) {
     tag += String(rfid.uid.uidByte[i], HEX);
   }
-  Serial.print("Tag Detected: ");
+  Serial.print("Tag: ");
   Serial.print(tag);
   for (int i = 0; i < 2; i += 1) {
     if (tag == tags[i]) {
       if (is_tag_valid[i]) {
+        // a CE student was detected!
         order_status = CHECKING_WALLET;
+        if (flag) {
+          flag = false;
+          delay(100);
+          return;
+        }
+        flag = true;
         Serial.println("Authenticated");
         delay(500);
       } else {
         order_status = AUTHENTICATION_FAILED;
+        if (flag) {
+          flag = false;
+          delay(100);
+          return;
+        }
+        flag = true;
         Serial.println("Authentication Failed");
         buzz();
       }
@@ -222,13 +236,28 @@ void check_wallet() {
   if ( ordered_item < 0 || ordered_item > 3) {
     Serial.println("No item is selected, ERROR");
   } else {
+    // if order was valid...checking wallet...
     if ( wallet - price[ordered_item] < 0 ) {
       order_status = NOT_ENOUGH_MONEY;
+      if (flag) {
+        flag = false;
+        delay(100);
+        return;
+      }
+      flag = true;
     } else {
       wallet -= price[ordered_item];
       Serial.print("Remained Balance:");
       Serial.println(wallet);
       order_status = OPEN_DOOR;
+      if (flag) {
+        flag = false;
+        delay(100);
+        return;
+      } else {
+        delay(200);
+      }
+      flag = true;
     }
   }
 }
@@ -240,13 +269,25 @@ void open_the_door() {
     delay(15);                       // waits 15ms for the servo to reach the position
   }
   order_status = TAKING;
+  if (flag) {
+    flag = false;
+    delay(100);
+    return;
+  }
+  flag = true;
 }
 
-void inform_user() {
+void notify_user() {
   digitalWrite(LED_PIN, HIGH);
   delay(6000);
   digitalWrite(LED_PIN, LOW);
   order_status = DONE;
+  if (flag) {
+    flag = false;
+    delay(100);
+    return;
+  }
+  flag = true;
 }
 
 void close_door() {

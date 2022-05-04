@@ -42,26 +42,26 @@ const char itemPage_html[] PROGMEM = R"rawliteral(
         </div>    
         <div id="status-container" class="alert alert-light text-center">
             <p id="status"></p>
-            <a href="http://192.168.1.2">
+            <a href="http://192.168.1.7">
               <button style="display: none;" id="return-button" class="btn btn-sm btn-dark mt-3">Return to Home Page 🏠</button>
             </a>
         </div>
     </section>
     <script>
         const items = {
-            'Milk': {
+            '1': {
                 price: 7000,
                 emoji: '🥛'
             },
-            'Soda': {
+            '2': {
                 price: 5000,
                 emoji: '🥤'
             },
-            'Peanut Pack': {
+            '3': {
                 price: 4000,
                 emoji: '🥜'
             },
-            'Chips': {
+            '4': {
                 price: 6000,
                 emoji: '🍟'
             },
@@ -114,7 +114,7 @@ const char itemPage_html[] PROGMEM = R"rawliteral(
         const statusSectionContainer = document.getElementById("status-container");
         const returnButton = document.getElementById("return-button");
         const itemName = params.get('item');
-        itemNameSection.innerText = itemName ? `${itemName} ${items[itemName]?.emoji}` : '-';
+        itemNameSection.innerText = itemName ? `${itemName || '?'} (${items[itemName]?.emoji})` : '-';
         itemPriceSection.innerText = `${items[itemName]?.price || '-'}`;
 
         setInterval(function update(){

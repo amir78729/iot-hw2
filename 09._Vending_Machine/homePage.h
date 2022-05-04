@@ -22,58 +22,40 @@ const char homePage_html[] PROGMEM = R"rawliteral(
         <hr>
         <form id="vending-machine" action="/order" method="get">
             <div class="form-check">
-                <input class="form-check-input" type="radio" name="item" id="milk" value="Milk" onchange="getIsSubmittionAvailable()">
+                <input class="form-check-input" type="radio" name="item" id="milk" value="1" onchange="getIsSubmittionAvailable()">
                 <label class="form-check-label" for="milk">
                     🥛<b>Milk</b> (7000)
                 </label>
             </div>
             <div class="form-check mt-3">
-                <input class="form-check-input" type="radio" name="item" id="soda" value="Soda" onchange="getIsSubmittionAvailable()">
+                <input class="form-check-input" type="radio" name="item" id="soda" value="2" onchange="getIsSubmittionAvailable()">
                 <label class="form-check-label" for="soda">
                     🥤<b>Soda</b> (5000)
                 </label>
             </div>
             <div class="form-check mt-3">
-                <input class="form-check-input" type="radio" name="item" id="peanut" value="Peanut Pack" onchange="getIsSubmittionAvailable()">
+                <input class="form-check-input" type="radio" name="item" id="peanut" value="3" onchange="getIsSubmittionAvailable()">
                 <label class="form-check-label" for="peanut">
                     🥜<b>Peanut Pack</b> (4000)
                 </label>
             </div>
             <div class="form-check mt-3">
-                <input class="form-check-input" type="radio" name="item" id="chips" value="Chips" onchange="getIsSubmittionAvailable()">
+                <input class="form-check-input" type="radio" name="item" id="chips" value="4" onchange="getIsSubmittionAvailable()">
                 <label class="form-check-label" for="chips">
                     🍟<b>Chips</b> (6000)
                 </label>
             </div>
-            <div class="container mt-3">
-                <div class="row justify-content-between">
-                    <button id="order-button" value="order" onclick="order()" type="submit" class="btn btn-primary col-12" disabled>Submit Order</button>
-                </div>
-            </div>
+            
         </form>
+        <div class="container mt-3">
+          <div class="row justify-content-between">
+              <button id="order-button" value="order" onclick="order()" type="submit" class="btn btn-primary col-12" disabled>Submit Order</button>
+          </div>
+      </div>
 
     </section>
     <script>
         const getIsSubmittionAvailable = () => {
-            let selectedItem = null;
-            if (document.getElementById('milk').checked) {
-                selectedItem = 'Milk';
-            } else if (document.getElementById('soda').checked) {
-                selectedItem = 'Soda';
-            } else if (document.getElementById('peanut').checked) {
-                selectedItem = 'Peanut Pack';
-            } else if (document.getElementById('chips').checked) {
-                selectedItem = 'Chips';
-            }
-            if (selectedItem) {
-                document.getElementById("order-button").disabled = false;
-            } else {
-                document.getElementById("order-button").disabled = true;
-            }
-        }
-        const order = () => {
-            console.log('submitting an order...');
-            e.preventDefault();
             let selectedItem = null;
             if (document.getElementById('milk').checked) {
                 selectedItem = 1;
@@ -85,7 +67,29 @@ const char homePage_html[] PROGMEM = R"rawliteral(
                 selectedItem = 4;
             }
             if (selectedItem) {
-                window.location.replace(`/order?item=${selectedItem}`);
+                document.getElementById("order-button").disabled = false;
+            } else {
+                document.getElementById("order-button").disabled = true;
+            }
+        }
+        const order = () => {
+            console.log('submitting an order...');
+            let selectedItem = null;
+            if (document.getElementById('milk').checked) {
+                selectedItem = 1;
+            } else if (document.getElementById('soda').checked) {
+                selectedItem = 2;
+            } else if (document.getElementById('peanut').checked) {
+                selectedItem = 3;
+            } else if (document.getElementById('chips').checked) {
+                selectedItem = 4;
+            }
+            if (selectedItem) {
+              var xhttp = new XMLHttpRequest();
+              console.log("order?item="+selectedItem)
+              xhttp.open("GET", "order?item="+selectedItem, false);
+              xhttp.send();
+              window.location.replace(`/order?item=${selectedItem}`);
             } else {
                 alert("Please select an Item!")
             }
