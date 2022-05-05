@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 
-IPAddress local_IP(10, 10, 10, 1);
-IPAddress gateway(10, 10, 10, 1);
+IPAddress local_IP(192, 168, 4, 137);
+IPAddress gateway(192, 168, 4, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 void setup()
@@ -14,9 +14,9 @@ void setup()
   Serial.print("IP address (Before Cofig): ");
   Serial.println(WiFi.softAPIP());
 
-  Serial.print("Setting configuration ... ");
+  Serial.println("Setting configuration ... ");
   WiFi.softAPConfig(local_IP, gateway, subnet);
-  
+
   Serial.print("IP address (After Config): ");
   Serial.println(WiFi.softAPIP());
 }
