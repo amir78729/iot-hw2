@@ -9,7 +9,8 @@ void setup() {
 
   // Scanning Wi-Fis
   int numberOfNetworks = WiFi.scanNetworks();
- 
+  delay(4000);
+  Serial.println();
   for(int i = 0; i < WiFi.scanNetworks(); i++){
       Serial.print("Network name: ");
       Serial.println(WiFi.SSID(i));
@@ -18,10 +19,11 @@ void setup() {
   
   // Init Wi-Fi
   WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi ..");
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print('.');
-    delay(5000);
+    delay(500);
   }
   Serial.print("\nIP Address: ");
   Serial.print(WiFi.localIP());
