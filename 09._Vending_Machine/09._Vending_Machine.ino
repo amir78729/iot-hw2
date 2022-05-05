@@ -193,7 +193,7 @@ void authenticate() {
     tag += String(rfid.uid.uidByte[i], HEX);
   }
   Serial.print("Tag: ");
-  Serial.print(tag);
+  Serial.println(tag);
   for (int i = 0; i < 2; i += 1) {
     if (tag == tags[i]) {
       if (is_tag_valid[i]) {
@@ -216,7 +216,6 @@ void authenticate() {
         }
         flag = true;
         Serial.println("Authentication Failed");
-        buzz();
       }
     }
   }
@@ -241,7 +240,7 @@ void check_wallet() {
       order_status = NOT_ENOUGH_MONEY;
       if (flag) {
         flag = false;
-        delay(100);
+        buzz();
         return;
       }
       flag = true;
