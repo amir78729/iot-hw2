@@ -35,7 +35,7 @@ const char webpage_html[] PROGMEM = R"rawliteral(
           </form>
           <div class="container">
             <div class="row justify-content-between">
-                <button id="start-btn" onclick="toggleStart()" type="submit" class="btn btn-success col-6">Start</button>
+                <button id="start-btn" onclick="toggleStart()" type="submit" class="btn btn-danger col-6">Stop</button>
                 <button id="snooz-btn" onclick="snooz()" type="submit" class="btn btn-primary col-6">Snooz</button>
             </div>
         </div>
@@ -61,38 +61,57 @@ const char webpage_html[] PROGMEM = R"rawliteral(
       if (history.pushState) {
           const newurl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?time=${getEpoch() || 'undefined'}&volume=${volume}&state=${state}`;
           window.history.pushState({path:newurl},'',newurl);
-          sendRequest();
+//          sendRequest();
       }
     }
     const getEpoch = () => Number(new Date(new Date().toString().substring(0, 16) + timeInput.value + ":00" + new Date().toString().substring(24)));
 
     const toggleStart = (e) => {
       state = isStart ? "stop": "start"
-      startStopBtn.innerText = isStart ? "Stop": "Start";
-      startStopBtn.className = isStart ? "btn btn-danger col-6": "btn btn-success col-6"
+//      startStopBtn.innerText = isStart ? "Stop": "Start";
+//      startStopBtn.className = isStart ? "btn btn-danger col-6": "btn btn-success col-6"
       isStart = !isStart;
       updateUrl();
+      sendStopAlarm();
     }
 
     const snooz = () => {
       state = 'snooze';
       updateUrl();
+      sendSnoozeAlarm();
     }
-    function sendRequest(){
+
+    function sendUpdateAlarm() {
       var xhttp = new XMLHttpRequest();
-      xhttp.open("GET", `alarm_info?state=${state}&volume=${volume}&time=${getEpoch()}`, false);
+      xhttp.open("GET", `update_time?time=${getEpoch()}`, false);
+      xhttp.send();
+    }
+    function sendUpdateVolume() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", `update_volume?volume=${volume}`, false);
+      xhttp.send();
+    }
+    function sendSnoozeAlarm() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", `snooze_alarm`, false);
+      xhttp.send();
+    }
+    function sendStopAlarm() {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", `stop_alarm`, false);
       xhttp.send();
     }
     const changeVolume = () => {
       volume = rangeInput.value;
       volNum.innerText = volume;
       updateUrl();
+      sendUpdateVolume();
     }
     const changeTime = () => {
       time = timeInput.value;
       updateUrl();
+      sendUpdateAlarm();
     }
-      
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
   </body>

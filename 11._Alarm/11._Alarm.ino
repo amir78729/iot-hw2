@@ -5,7 +5,7 @@
 #include "webpage.h"
 
 // defining buzzer pin
-#define BUZZER_PIN 5 // assiging buzzer pin: SD2
+#define BUZZER_PIN 5 // assiging buzzer pin: D1
 
 long int input_time;
 String volume;
@@ -28,50 +28,51 @@ ESP8266WebServer server(80);
 const char *ssid     = "Dellink";
 const char *password = "wtkh-daah-y8bj";
 
-
-void alarm_info() {
+void update_time_func() {
+  // when the user changes the time from the wabpage...
   server.send(200, "text/plain", "clicked");
   String tmp = server.arg("time");
-
-  Serial.println(tmp);
   tmp.replace("000", "");
-  Serial.println(tmp);
   input_time = tmp.toInt();
-  Serial.println(input_time);
-  volume = server.arg("volume");
-  state = server.arg("state");
-
-  //  Serial.println(server.arg("time").replace("000", ""));
-  //  Serial.println(server.arg("time").replace("000", "").toInt());
-  //  Serial.println(server.arg("time").replace("000", "").toInt() / 1000);
-  //  Serial.println(floor(server.arg("time").replace("000", "").toInt() / 1000));
-
-  Serial.println("----------------------------------------------------------------------------------");
+  print_current_time();
   Serial.print("input_time: ");
   Serial.println(input_time);
-  Serial.print("volume: ");
-  Serial.println(volume);
-  Serial.print("state: ");
-  Serial.println(state);
-  if (state == "snooze") {
-    snooze_alarm = true;
-  } else {
-    snooze_alarm = false;
-  }
-  if (state == "stop") {
-    stop_alarm = true;
-  } else {
-    stop_alarm = false;
-  }
-
   if (timeClient.getEpochTime() - 16200 >= input_time) {
     alarm_was_set_in_the_past = true;
-    //      Serial.println("timeClient.getEpochTime() >= input_time");
   } else {
     alarm_was_set_in_the_past = false;
   }
+  stop_alarm = false;
+  snooze_alarm = false;
   Serial.println("----------------------------------------------------------------------------------");
+}
 
+void update_volume_func() {
+  // when the user changes the volume from the wabpage...
+  server.send(200, "text/plain", "clicked");
+  volume = server.arg("volume");
+  print_current_time();
+  Serial.print("volume: ");
+  Serial.println(volume);
+  Serial.println("----------------------------------------------------------------------------------");
+}
+void snooze_alarm_func() {
+  // when the user clicks on snooze button...
+  server.send(200, "text/plain", "clicked");
+  print_current_time();
+  Serial.println("User Pressed the Snooze Button");
+  Serial.println("----------------------------------------------------------------------------------");
+  stop_alarm = false;
+  snooze_alarm = true;
+}
+void stop_alarm_func() {
+  // when the user clicks on stop button...
+  server.send(200, "text/plain", "clicked");
+  stop_alarm = true;
+  snooze_alarm = false;
+  print_current_time();
+  Serial.println("User Pressed the Stop Button");
+  Serial.println("----------------------------------------------------------------------------------");
 }
 void webpage() {
   server.send(200, "text/html", webpage_html);
@@ -81,9 +82,6 @@ void handle_NotFound() {
 }
 
 void setup() {
-  //  pinMode(BUZZER_PIN, OUTPUT);
-  //  digitalWrite(BUZZER_PIN, LOW);
-
   Serial.begin(9600);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -104,7 +102,10 @@ void setup() {
   // setting up the server
   if (is_connected) {
     server.on("/", webpage);
-    server.on("/alarm_info", alarm_info);
+    server.on("/update_time", update_time_func);
+    server.on("/update_volume", update_volume_func);
+    server.on("/snooze_alarm", snooze_alarm_func);
+    server.on("/stop_alarm", stop_alarm_func);
     server.onNotFound(handle_NotFound);
     server.begin();
     Serial.println("Server is up");
@@ -113,37 +114,41 @@ void setup() {
   }
   Serial.println("");
   timeClient.begin();
-  //   timeClient.setTimeOffset(16200); // GMT+4:30 (4.5*3600)
-  //   timeClient.update();
+  timeClient.setTimeOffset(16200); // GMT+4:30 (4.5*3600)
+  timeClient.update();
   Serial.println();
   print_current_time();
   Serial.println("Connected to the Internet!");
 }
 int snooz_start_time = -1;
 bool active_alarm = false;
+int i = 0;
 void loop() {
   server.handleClient();
   timeClient.update();
-  //  Serial.println(input_time);
-  //  Serial.println((timeClient.getEpochTime() - 16200));
-  //  Serial.println();
-  Serial.print("snooze_alarm");
-  Serial.println(snooze_alarm);
-  Serial.print("stop_alarm");
-  Serial.println(stop_alarm);
-  Serial.print("active_alarm");
-  Serial.println(active_alarm);
-  Serial.println();
   if (active_alarm && !snooze_alarm && !stop_alarm && !alarm_was_set_in_the_past) {
     buzz();
-    Serial.println("bzzzzzzzzzz");
+    i++;
+    if (i > 82) {
+      Serial.println("!");
+      i = 0;
+    } else {
+      Serial.print("!");
+    }
   } else {
     analogWrite(BUZZER_PIN, 0);
   }
+
+  if (timeClient.getEpochTime() - 16200 >= input_time) {
+    active_alarm = true;
+  } else {
+    active_alarm = false;
+  }
+
   if (snooze_alarm) {
     if (snooz_start_time == -1) {
       // initaiting snoozing
-      Serial.println("snooz start");
+      Serial.println("snooze started (5 seconds)");
       snooz_start_time = millis();
     } else {
       if (millis() - snooz_start_time >= 5000) {
@@ -152,21 +157,6 @@ void loop() {
         Serial.println("end of snooze");
       }
     }
-    if (timeClient.getEpochTime() - 16200 >= input_time) {
-      active_alarm = true;
-      //      Serial.println("timeClient.getEpochTime() >= input_time");
-    } else {
-      active_alarm = false;
-    }
-    //    if (state == "start") {
-    //
-    //
-    //      //      snooze_alarm();
-    //      //      buzz();
-    //    }
-    //    else if (stop_alarm) {
-    //      //      stop_alarm();
-    //    }
   }
 }
 
@@ -176,18 +166,8 @@ void buzz() {
 }
 
 void print_current_time() {
-  Serial.println("----------------------------------------------------------------------------------");
+  Serial.println("\n----------------------------------------------------------------------------------");
   Serial.print("[");
   Serial.print(timeClient.getFormattedTime());
   Serial.print("] ");
 }
-
-//void snooze_alarm() {
-//  Serial.print("snoozing...(");
-//  Serial.print(SNOOZE_DURATION - (millis() - timer_millies));
-//  Serial.println("ms remaining)");
-//}
-
-//void stop_alarm() {
-//  digitalWrite(BUZZER_PIN, LOW);
-//}
