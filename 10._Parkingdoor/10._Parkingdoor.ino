@@ -5,7 +5,7 @@
 
 #define LED 2 // D4
 #define SERVO 0 // D3
-#define TRIGGER_PIN 4 // D4
+#define TRIGGER_PIN 4 // D2
 #define ECHO_PIN 5 // D1
 #define BUZZER_PIN 16 // D0 
 
@@ -59,13 +59,13 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
 
   WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED){
+  while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
     delay(1000);
   }
 
   Serial.println();
-  if (WiFi.status() == WL_CONNECTED){
+  if (WiFi.status() == WL_CONNECTED) {
     Serial.print("Connected to ");
     Serial.println(ssid);
     Serial.print("IP: ");
@@ -114,7 +114,7 @@ void open_door() {
   command = "wait";
 }
 void close_door() {
-  
+  digitalWrite(LED, HIGH);
   alert_text = CLOSING_DOOR;
   if (flag) {
     flag = false;
@@ -124,8 +124,8 @@ void close_door() {
   flag = true;
   Serial.println("Closing the door...");
   for (pos = 180; pos >= 0; pos -= 1) {
-    if (get_distance_in_cm() < 20) {
-      Serial.println("Object was detected");
+    int dist = get_distance_in_cm();
+    if (dist < 10) {
       alert_text = OBJECT_DETECTED;
       return;
     }
@@ -135,13 +135,13 @@ void close_door() {
   doorState = DOOR_IS_CLOSED;
   alert_text = DOOR_IS_CLOSED;
   command = "wait";
+  digitalWrite(LED, LOW);
 }
 
 
 void loop() {
   server.handleClient();
   if (alert_text == OBJECT_DETECTED) {
-    alert_text = OBJECT_DETECTED;
     if (flag) {
       digitalWrite(BUZZER_PIN, HIGH);
       flag = false;
@@ -154,7 +154,7 @@ void loop() {
   }
   if (command == "open" ) {
     if (doorState == DOOR_IS_CLOSED) {
-      
+
       alert_text = OPENING_DOOR;
       if (flag) {
         flag = false;
@@ -178,6 +178,5 @@ void loop() {
         close_door();
       }
     }
-
   }
 }

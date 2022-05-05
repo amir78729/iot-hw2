@@ -28,11 +28,11 @@ const char webpage_html[] PROGMEM = R"rawliteral(
     <h1 class="display-3 text-center mb-3">Parking Door</h1>
     <hr>
     <div class="container mb-3">
-            <div class="row justify-content-between">
-                <button class="btn btn-success col-5" onclick="processButton(event)" id="open">OPEN</button>
-                 <button class="btn btn-danger col-5" onclick="processButton(event)" id="close">CLOSE</button>
-            </div>
+        <div class="row justify-content-between">
+            <button class="btn btn-success col-5" onclick="processButton(event)" id="open">OPEN</button>
+            <button class="btn btn-danger col-5" onclick="processButton(event)" id="close">CLOSE</button>
         </div>
+    </div>
     
     <div id="status-container" class="alert alert-light text-center">
           <p id="status"></p>
