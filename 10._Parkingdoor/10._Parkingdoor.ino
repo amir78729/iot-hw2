@@ -19,8 +19,8 @@ const String OPENING_DOOR = "OPENING_DOOR";
 const String CLOSING_DOOR = "CLOSING_DOOR";
 const String OBJECT_DETECTED = "OBJECT_DETECTED";
 
-const char *ssid = "Dellink";
-const char *password = "wtkh-daah-y8bj";
+const char *ssid = "ssid";
+const char *password = "password";
 bool is_connected = false;
 String doorState = DOOR_IS_CLOSED;
 String command = "wait";

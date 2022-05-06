@@ -25,8 +25,8 @@ Servo myServo;
 
 ESP8266WebServer server(80);
 // wifi credentials
-const char *ssid     = "Dellink";
-const char *password = "wtkh-daah-y8bj";
+const char *ssid     = "ssid";
+const char *password = "password";
 uint8_t retries = 0;
 bool is_connected = false;
 

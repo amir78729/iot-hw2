@@ -61,15 +61,12 @@ const char webpage_html[] PROGMEM = R"rawliteral(
       if (history.pushState) {
           const newurl = `${window.location.protocol}//${window.location.host}${window.location.pathname}?time=${getEpoch() || 'undefined'}&volume=${volume}&state=${state}`;
           window.history.pushState({path:newurl},'',newurl);
-//          sendRequest();
       }
     }
     const getEpoch = () => Number(new Date(new Date().toString().substring(0, 16) + timeInput.value + ":00" + new Date().toString().substring(24)));
 
     const toggleStart = (e) => {
       state = isStart ? "stop": "start"
-//      startStopBtn.innerText = isStart ? "Stop": "Start";
-//      startStopBtn.className = isStart ? "btn btn-danger col-6": "btn btn-success col-6"
       isStart = !isStart;
       updateUrl();
       sendStopAlarm();

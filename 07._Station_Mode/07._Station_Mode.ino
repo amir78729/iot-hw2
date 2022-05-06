@@ -1,7 +1,7 @@
 #include <ESP8266WiFi.h>
 
-const char* ssid = "Dellink";
-const char* password = "wtkh-daah-y8bj";
+const char* ssid = "ssid";
+const char* password = "password";
 
 void setup() {
   Serial.begin(9600);

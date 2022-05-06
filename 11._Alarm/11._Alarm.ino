@@ -25,8 +25,8 @@ WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "pool.ntp.org", 16200);
 ESP8266WebServer server(80);
 
-const char *ssid     = "Dellink";
-const char *password = "wtkh-daah-y8bj";
+const char *ssid     = "ssid";
+const char *password = "password";
 
 void update_time_func() {
   // when the user changes the time from the wabpage...
@@ -126,6 +126,13 @@ int i = 0;
 void loop() {
   server.handleClient();
   timeClient.update();
+  
+  if (timeClient.getEpochTime() - 16200 >= input_time) {
+    active_alarm = true;
+  } else {
+    active_alarm = false;
+  }
+  
   if (active_alarm && !snooze_alarm && !stop_alarm && !alarm_was_set_in_the_past) {
     buzz();
     i++;
@@ -137,12 +144,6 @@ void loop() {
     }
   } else {
     analogWrite(BUZZER_PIN, 0);
-  }
-
-  if (timeClient.getEpochTime() - 16200 >= input_time) {
-    active_alarm = true;
-  } else {
-    active_alarm = false;
   }
 
   if (snooze_alarm) {
