@@ -36,7 +36,7 @@ void webpage() {
 }
 
 void button() {
-  server.send(200, "text/plain", "clicked");
+  server.send(200, "text/plain", "state");
   command = server.arg("state");
 }
 

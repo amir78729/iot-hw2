@@ -30,7 +30,7 @@ const char *password = "password";
 
 void update_time_func() {
   // when the user changes the time from the wabpage...
-  server.send(200, "text/plain", "clicked");
+  server.send(200, "text/plain", "update_time_func");
   String tmp = server.arg("time");
   tmp.replace("000", "");
   input_time = tmp.toInt();
@@ -49,7 +49,7 @@ void update_time_func() {
 
 void update_volume_func() {
   // when the user changes the volume from the wabpage...
-  server.send(200, "text/plain", "clicked");
+  server.send(200, "text/plain", "update_volume_func");
   volume = server.arg("volume");
   print_current_time();
   Serial.print("volume: ");
@@ -58,7 +58,7 @@ void update_volume_func() {
 }
 void snooze_alarm_func() {
   // when the user clicks on snooze button...
-  server.send(200, "text/plain", "clicked");
+  server.send(200, "text/plain", "snooze_alarm_func");
   print_current_time();
   Serial.println("User Pressed the Snooze Button");
   Serial.println("----------------------------------------------------------------------------------");
@@ -67,7 +67,7 @@ void snooze_alarm_func() {
 }
 void stop_alarm_func() {
   // when the user clicks on stop button...
-  server.send(200, "text/plain", "clicked");
+  server.send(200, "text/plain", "stop_alarm_func");
   stop_alarm = true;
   snooze_alarm = false;
   print_current_time();
